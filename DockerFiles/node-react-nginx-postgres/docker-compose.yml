@@ -1,0 +1,74 @@
+#version: '3'
+#services:
+#  spring-app:
+#    container_name: spring-app
+#    build: .
+#    ports:
+#      - 9006:8080
+#
+
+version: '3'
+services:
+# Client app
+  node-client-app:
+    container_name: node-client-app
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    environment:
+      REACT_APP_API_PROXY: http://localhost:8080/api
+    ports:
+      - 3000:3000
+    networks: 
+      - nodeapp
+    depends_on:
+      - nodeserver
+# Server app
+  nodeserver:
+    container_name: nodeserver
+    build:
+      context: ./server/
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: admin
+      DB_DATABASE_NAME: testing-db
+      DB_LOGGING: "true"
+      DB_SYNCHRONIZATION: "true"
+      DB_DROP_SCHEMA: "true"
+      PORT: 8080
+      CORS_ORIGIN: "http://localhost:3000"
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks: 
+      - nodeapp
+# Postgres DB
+  db:
+    container_name: postgres-node
+    image: postgres:9
+    volumes:
+      - sample_db_node:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=testing-db
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    networks: 
+      - nodeapp
+
+volumes:
+  sample_db_node: {}
+
+networks: 
+    nodeapp:

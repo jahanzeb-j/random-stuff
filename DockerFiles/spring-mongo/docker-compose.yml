@@ -1,0 +1,30 @@
+version: '3'
+services:
+  spring-mongo:
+    container_name: spring-mongo
+    build: .
+    environment:
+      - SPRING_DATA_MONGODB_HOST=db
+      - SPRING_DATA_MONGODB_DATABASE=test-db
+      - SPRING_DATA_MONGODB_USERNAME=admin
+      - SPRING_DATA_MONGODB_PASSWORD=admin
+      - SPRING_DATA_MONGODB_PORT=27017
+    ports:
+      - 9001:8080
+    depends_on:
+      - db
+
+  db:
+    container_name: mongo-db
+    image: 'bitnami/mongodb:latest'
+    volumes:
+      - sample_db:/var/lib/mongo/data
+    environment:
+      - MONGODB_USERNAME=admin
+      - MONGODB_PASSWORD=admin
+      - MONGODB_DATABASE=test-db
+    ports:
+      - 27017:27017
+
+volumes:
+  sample_db: {}
