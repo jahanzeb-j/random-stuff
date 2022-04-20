@@ -14,7 +14,7 @@ import requests
 	
 	# i = i+1
 
-i = 14000
+i = 78600
 while True:
 	addr = 'https://prvs.sindhpolice.gov.pk/verification/CheckCertificate?id='+str(i)
 	page = requests.get(addr)
