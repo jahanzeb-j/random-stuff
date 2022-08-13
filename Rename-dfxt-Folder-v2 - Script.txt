@@ -1,0 +1,60 @@
+﻿
+# PowerShell Script
+#===============================================================
+#
+# This script is used to rename the (BMW/HIL) sub-folder within the Data-fix folder. 
+# Script will read the path and will rename 2-level sub-folder by putting "_" sign.
+#
+# Note: This script is coded accordingly current folders sequence. It might won't work if any change. i:e: PRE-Data\ > Pre_20220812 > SDBMWCN-3244 > HIL
+# Version 1.0
+#===============================================================
+
+# Path of the action folder
+$PATH="\\sfcn0178\share-folder\PRE-Data\"
+
+#$PATH="\\sfcn0178\share-folder\PRE-Data\Pre_20220812"
+
+#$PATH="\\uh19230063.bmwgroup.net\home$\QXZ2ON7\DFXT-test\"
+
+
+echo "#########=====<<< Start >>>===##########"
+
+echo "####Loc-PATH#####===>$PATH"
+
+$PATH_Item=Get-ChildItem $PATH
+
+foreach ($f in $PATH_Item){
+    echo "######## scripts executing...  ###########"
+
+    # For Multiple-level Folder --
+    # Main PATH should be like this parent folder "\\sfcn0178\share-folder\PRE-Data
+    # Disable it by putting "#" if path is of one specific date i-e "Pre_20220809"
+  # -----------
+    $f = Get-ChildItem $f.FullName
+    #3rd Level
+    #$f = Get-ChildItem $f.FullName
+  # ---------
+
+    $intfile =Get-ChildItem $f.FullName
+    #echo "File" $f
+    # Display Folder
+    #echo "Inner Folder ===>>>"+ $intfile
+    #echo "Inner Folder ===>>> $intfile"
+    
+    if(Test-Path $intfile.FullName){
+       
+       if( $intfile -is [Object[]])
+       {
+        # Rename Multiple Folder
+          Get-ChildItem $f.FullName | where{!($_.FullName.endswith("_") -or $_.FullName.Contains(".sql") ) } | % { Rename-Item -Force -Path $_.FullName -NewName "$_ _" }
+        }
+        else{
+        # Rename Single Folder
+          $newName = $intfile.FullName + "_"
+         if(! ($intfile.FullName.endswith("_") -or $intfile.FullName.Contains(".sql") ) ) { Rename-Item -Force -Path $intfile.FullName -NewName $newName }
+        }
+        
+        echo "#### Renamed ##### "
+    }
+}
+echo "##########===<<< Done >>>===#########"
